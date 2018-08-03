@@ -1,93 +1,52 @@
 #include <iostream>
-#include <utility>
 #include <vector>
-#include <fstream>
 
 using namespace std;
 
+
 class KTNode {
 
-    friend ostream &operator<<(ostream &, const KTNode &);
-
 public:
-
-
-    KTNode(char c) {
+    explicit KTNode(char c) {
         this->c = c;
-        this->sons.clear();
-    };
-
+        failure = nullptr;
+    }
     ~KTNode() = default;
 
     void proliferate(string t) {
-
-        if(t.empty()) return;
-
-        bool beenPut=false;
-        //cout << "(proliferate\n";
+        if (t.empty()) return;
         for (auto &son : sons) {
-
-           // cout << "ho gia figli\n";
-            if (t.front() == son->getChar()) {
-                son->proliferate(t.substr(1));
-                beenPut=true;
+            if (t.front() == son.getChar()) {
+                son.proliferate(t.substr(1));
+                return;
             }
         }
-        if(!beenPut) {
-           // cout << "non ho figli con questo carattere\n";
-            auto aux = new KTNode(t.front());
-            sons.push_back(aux);
-            aux->proliferate(t.substr(1));
-        }
-       // cout << ")\n";
+        auto aux = new KTNode(t.front());
+        aux->proliferate(t.substr(1));
+        sons.push_back(*aux);
     }
 
     char getChar() { return c; }
 
-    void print(){
-
-        for (auto &son : sons) {
-            cout << c;
-            son->print();
-            //cout << endl;
-        }
-        if(sons.size()==0){
-            cout<<c;
-        }
-
-
+    const vector<KTNode> &getSons() const {
+        return sons;
     }
 
 private:
     char c;
-    std::vector<struct KTNode*> sons;
-
+    KTNode* failure;
+    vector<KTNode> sons;
 };
 
-
-ostream &operator<<(ostream &os, const KTNode &in) {
-
-    return os << in.c ;
-}
-
 class KeywordTree {
-    friend ostream &operator<<(ostream &, const KeywordTree &);
 
 public:
-
-
     KeywordTree() {
         root = new KTNode('$');
-        nome="ROOT";
     };
 
     ~KeywordTree() = default;
 
-public:
-    KTNode *root;
-    string nome;
-public:
-    string getNome(){return nome;}
     KTNode *getRoot() const {
         return root;
     }
@@ -96,34 +55,45 @@ public:
         KeywordTree::root = root;
     }
 
+    void insert(string inp) {
+        root->proliferate(std::move(inp));
+    }
+
+private:
+    KTNode *root;
 };
 
-ostream &operator<<(ostream &os, const KeywordTree &in) {
+void serialize(KTNode *root, string *linearized) {
+    // Base case
+    if (root == nullptr) return;
 
-    return os << endl;
+    // Else, store current node and recur for its children
+    *linearized += root->getChar();
+
+    auto sons = root->getSons();
+    for (auto &son : sons)
+        serialize(&son, linearized);
+
+    // Store marker at the end of children
+    *linearized += ' ';
 }
-
-void insertKT(KeywordTree *k, string inp) {
-
-    k->root->proliferate(std::move(inp));
-
-}
-
-
-
 
 int main() {
+    //string inp;
 
+    //cout << "Inserisci un pattern:" << endl;
+    //cin >> inp;
 
+    auto k = new KeywordTree();
 
-    KeywordTree* k = new KeywordTree();
+    //k->insert(inp);
+    k->insert("ansa");
+    k->insert("ansia");
+    k->insert("melania");
+    k->insert("melanoma");
 
-    insertKT(k, "carola");
-
-    insertKT(k, "carel");
-
-
-    k->getRoot()->print();
-
+    string a;
+    serialize(k->getRoot(), &a);
+    cout << a;
     return 0;
 }
