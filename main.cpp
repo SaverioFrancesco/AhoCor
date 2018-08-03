@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 class KTNode {
 
 public:
@@ -11,31 +10,32 @@ public:
         this->c = c;
         failure = nullptr;
     }
+
     ~KTNode() = default;
 
     void proliferate(string t) {
         if (t.empty()) return;
         for (auto &son : sons) {
-            if (t.front() == son.getChar()) {
-                son.proliferate(t.substr(1));
+            if (t.front() == son->getChar()) {
+                son->proliferate(t.substr(1));
                 return;
             }
         }
         auto aux = new KTNode(t.front());
         aux->proliferate(t.substr(1));
-        sons.push_back(*aux);
+        sons.push_back(aux);
     }
 
     char getChar() { return c; }
 
-    const vector<KTNode> &getSons() const {
+    const vector<KTNode *> &getSons() const {
         return sons;
     }
 
 private:
     char c;
-    KTNode* failure;
-    vector<KTNode> sons;
+    KTNode *failure;
+    vector<KTNode *> sons;
 };
 
 class KeywordTree {
@@ -59,8 +59,18 @@ public:
         root->proliferate(std::move(inp));
     }
 
+    void comuteFl(){
+
+        auto figli =  root->getSons();
+
+        
+    }
+
+
 private:
     KTNode *root;
+
+
 };
 
 void serialize(KTNode *root, string *linearized) {
@@ -72,11 +82,14 @@ void serialize(KTNode *root, string *linearized) {
 
     auto sons = root->getSons();
     for (auto &son : sons)
-        serialize(&son, linearized);
+        serialize(son, linearized);
 
     // Store marker at the end of children
     *linearized += ' ';
 }
+
+
+
 
 int main() {
     //string inp;
