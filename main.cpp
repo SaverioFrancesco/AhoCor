@@ -20,42 +20,54 @@ public:
     ~KTNode() = default;
 
     void proliferate(string t) {
-        cout << "proliferate\n";
+
+        if(t.empty()) return;
+
+        bool beenPut=false;
+        //cout << "(proliferate\n";
         for (auto &son : sons) {
 
-            if (t.front() == son.getChar()) {
-
-                cout << "uuu\n";
-                son.proliferate(t.substr(1));
-                return;
+           // cout << "ho gia figli\n";
+            if (t.front() == son->getChar()) {
+                son->proliferate(t.substr(1));
+                beenPut=true;
             }
         }
-        auto aux = new KTNode(t.front());
-        sons.push_back(*aux);
-        aux->proliferate(t.substr(1));
-        cout << "aa\n";
+        if(!beenPut) {
+           // cout << "non ho figli con questo carattere\n";
+            auto aux = new KTNode(t.front());
+            sons.push_back(aux);
+            aux->proliferate(t.substr(1));
+        }
+       // cout << ")\n";
     }
 
     char getChar() { return c; }
 
-    void print() {
+    void print(){
+
         for (auto &son : sons) {
             cout << c;
-            son.print();
+            son->print();
+            //cout << endl;
         }
-        if (sons.empty()) cout << c << endl;
+        if(sons.size()==0){
+            cout<<c;
+        }
+
+
     }
 
 private:
     char c;
-    std::vector<struct KTNode> sons;
+    std::vector<struct KTNode*> sons;
 
 };
 
 
 ostream &operator<<(ostream &os, const KTNode &in) {
 
-    return os << "ciao";
+    return os << in.c ;
 }
 
 class KeywordTree {
@@ -66,15 +78,16 @@ public:
 
     KeywordTree() {
         root = new KTNode('$');
-
-
+        nome="ROOT";
     };
 
     ~KeywordTree() = default;
 
-private:
-    KTNode *root;
 public:
+    KTNode *root;
+    string nome;
+public:
+    string getNome(){return nome;}
     KTNode *getRoot() const {
         return root;
     }
@@ -92,27 +105,25 @@ ostream &operator<<(ostream &os, const KeywordTree &in) {
 
 void insertKT(KeywordTree *k, string inp) {
 
-    k->getRoot()->proliferate(std::move(inp));
+    k->root->proliferate(std::move(inp));
 
 }
 
 
+
+
 int main() {
 
-    string inp;
-
-    cin >> inp;
-
-    cout << inp.substr(1);
 
 
-    auto k = new KeywordTree();
+    KeywordTree* k = new KeywordTree();
 
-    insertKT(k, inp);
+    insertKT(k, "carola");
 
-    //k->getRoot()->print();
+    insertKT(k, "carel");
 
-    cout << inp.substr(1);
+
+    k->getRoot()->print();
 
     return 0;
 }
