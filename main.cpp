@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 int idGen = 0;
 
 class KTNode {
@@ -52,19 +51,16 @@ public:
         this->failure = fl;
     }
 
-    //void printOut(){ cout << id <<", faliure=" << (int)failure <<", content=" << getchar() << endl;}
-
-
     void computeFL() {
 
-        cout << "start commpute fl on "<< this -> id << endl;
+        //    cout << "start commpute fl on " << this->id << endl;
         set<KTNode *> nodes;
         for (auto &son:sons)
             nodes.insert(son);
         int x = 0;
 
-        cout<<"sons:" <<endl;
-        for (auto &son:nodes) {cout << son->id <<endl; };
+        //    cout << "sons:" << endl;
+        // for (auto &son:nodes) { cout << son->id << endl; };
 
         KTNode *currentFL = failure;
 
@@ -86,14 +82,13 @@ public:
                 }
             }
             for (auto &el:tbd) {
-
-                cout <<"delete "<< el->id <<endl;
+                //    cout << "delete " << el->id << endl;
                 nodes.erase(el);
             }
             currentFL = currentFL->getFailure();
             x++;
 
-            for (auto &son:nodes) {cout <<"alla fine"<< son->id <<endl << "........"<<endl; };
+            //for (auto &son:nodes) { cout << "alla fine" << son->id << endl << "........" << endl; };
 
         }
     }
@@ -129,13 +124,8 @@ public:
 
     void computeFL() {
         deque<KTNode *> q;
-
         q.push_back(root);
-
-
-        for (auto &n : q) {
-            cout << n->getChar() << "," << n->id << endl;
-        }
+        //for (auto &n : q) { cout << n->getChar() << "," << n->id << endl; }
 
         while (!q.empty()) {
             KTNode *cur = q.front();
@@ -145,11 +135,8 @@ public:
             }
             q.pop_front();
 
-            for (auto &n : q) {
-                cout << n->getChar() << "," << n->id << endl;
-
-            }
-            cout << "---" << endl;
+            //for (auto &n : q) { cout << n->getChar() << "," << n->id << endl;}
+            //cout << "---" << endl;
         }
 
     }
@@ -162,7 +149,7 @@ public:
         while (!q.empty()) {
             KTNode *cur = q.front();
             KTNode *fl = cur->getFailure();
-            cout << "FL di " << cur->getChar() << "," << cur->id << " è " << fl->getChar() << "," << fl->id << endl;
+            //cout << "FL di " << cur->getChar() << "," << cur->id << " è " << fl->getChar() << "," << fl->id << endl;
             for (auto &son:cur->getSons()) {
                 q.push_back(son);
             }
@@ -177,11 +164,11 @@ public:
 
         cout << n->getFailure()->getChar() << "," << n->getFailure()->id << endl;
         for (auto &son : n->getSons()) {
-            cout << "  -sons->" << son->getChar() << "," << son->id << endl;
+            cout << "(" << n->getChar() << "," << n->id << ")  -sons->" << son->getChar() << "," << son->id << endl;
         }
 
         for (auto &son : n->getSons()) { printPaths(son); }
-
+        cout << "--\n";
 
     }
 
@@ -189,23 +176,7 @@ public:
 private:
     KTNode *root;
 
-
 };
-
-void serialize(KTNode *root, string *linearized) {
-    // Base case
-    if (root == nullptr) return;
-
-    // Else, store current node and recur for its children
-    *linearized += root->getChar();
-
-    auto sons = root->getSons();
-    for (auto &son : sons)
-        serialize(son, linearized);
-
-    // Store marker at the end of children
-    *linearized += ' ';
-}
 
 
 int main() {
@@ -217,19 +188,16 @@ int main() {
     auto k = new KeywordTree();
 
     //k->insert(inp);
-    k->insert("abc");
-    k->insert("cab");
-    k->insert("cacao");
-    k->insert("cbcao");
+    k->insert("ababa");
+    k->insert("abaababa");
+    k->insert("cdfababa");
 
     k->computeFL();
 
-    k->printFL();
+    //k->printFL();
 
-    k->printPaths(k->getRoot());
+    //k->printPaths(k->getRoot());
 
-    string a;
-    serialize(k->getRoot(), &a);
-    cout << a;
+
     return 0;
 }
