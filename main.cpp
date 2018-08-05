@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <set>
+#include <queue>
 
 using namespace std;
 
@@ -32,6 +34,47 @@ public:
         return sons;
     }
 
+    KTNode *getFailure() const {
+        return failure;
+    }
+
+    void setFailure(KTNode *fl) {
+        this->failure = fl;
+    }
+
+    void computeFL() {
+        set<KTNode *> nodes;
+        for (auto &son:sons)
+            nodes.insert(son);
+        int x=0;
+
+        KTNode *currentFL = failure;
+
+        while (!nodes.empty()) {
+            set<KTNode *> tbd;
+            for (auto &node : nodes) {
+                if(currentFL==currentFL->getFailure() && x>0){ // sono alla radice
+                    node->setFailure(currentFL);
+                    //nodes.erase(node);
+                    tbd.insert(node);
+                    continue;
+                }
+                for (auto &sof:currentFL->getSons()) {
+                    if (sof->getChar() == node->getChar()) {
+                        node->setFailure(sof);
+                        //nodes.erase(node);
+                        tbd.insert(node);
+                    }
+                }
+            }
+            for(auto &el:tbd){
+                nodes.erase(el);
+            }
+            currentFL = currentFL->getFailure();
+            x++;
+        }
+    }
+
 private:
     char c;
     KTNode *failure;
@@ -43,6 +86,7 @@ class KeywordTree {
 public:
     KeywordTree() {
         root = new KTNode('$');
+        root->setFailure(root);
     };
 
     ~KeywordTree() = default;
@@ -59,11 +103,36 @@ public:
         root->proliferate(std::move(inp));
     }
 
-    void comuteFl(){
+    void computeFL() {
+        queue<KTNode *> q;
 
-        auto figli =  root->getSons();
+        q.push(root);
 
-        
+        while (!q.empty()) {
+            KTNode *cur = q.front();
+            cur->computeFL();
+            for (auto &son:cur->getSons()) {
+                q.push(son);
+            }
+            q.pop();
+        }
+    }
+
+    void printFL() {
+        queue<KTNode *> q;
+
+        q.push(root);
+
+        while (!q.empty()) {
+            KTNode *cur = q.front();
+            KTNode *fl = cur->getFailure();
+            cout << "FL di " << cur->getChar() << " è " << fl->getChar() << endl;
+            for (auto &son:cur->getSons()) {
+                q.push(son);
+            }
+            q.pop();
+        }
+
     }
 
 
@@ -89,8 +158,6 @@ void serialize(KTNode *root, string *linearized) {
 }
 
 
-
-
 int main() {
     //string inp;
 
@@ -100,10 +167,12 @@ int main() {
     auto k = new KeywordTree();
 
     //k->insert(inp);
-    k->insert("ansa");
-    k->insert("ansia");
-    k->insert("melania");
-    k->insert("melanoma");
+    k->insert("abc");
+    k->insert("cab");
+
+    k->computeFL();
+
+    k->printFL();
 
     string a;
     serialize(k->getRoot(), &a);
